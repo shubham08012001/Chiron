@@ -1,5 +1,7 @@
 // Define pins for the alcohol sensor and switches
 /* Replace these values with your own readings */
+
+#define Relay 5
 #define Sober 299   // Define max value that we consider sober
 #define Drunk 300   // Define min value that we consider drunk
 #define MQ3pin A0
@@ -22,9 +24,12 @@ pinMode(LtrigPin1, OUTPUT);
 pinMode(LechoPin1, INPUT);
 pinMode(RtrigPin2, OUTPUT);
 pinMode(RechoPin2, INPUT);
-  // Set the switch pins as inputs
-  pinMode(switch1Pin, INPUT_PULLUP);
-  pinMode(switch2Pin, INPUT_PULLUP);
+
+// Set the switch pins as inputs
+pinMode(switch1Pin, INPUT_PULLUP);
+pinMode(switch2Pin, INPUT_PULLUP);
+
+pinMode(Relay, OUTPUT);
 }
 
 void loop() {
@@ -34,26 +39,30 @@ void loop() {
    {
       if (sensorValue >= Sober && sensorValue < Drunk)
    {
+    
      Serial.println("  |  Status: Bike starts since rider is SOBER");
-Serial.print(sensorValue);
-SonarSensor(LtrigPin1, LechoPin1);
-LeftSensor = distance;
-SonarSensor(RtrigPin2, RechoPin2);
-RightSensor = distance;
 
-Serial.print(LeftSensor);
-Serial.print(" - ");
-Serial.println(RightSensor);
-Serial.print(" - ");
+     digitalWrite(Relay,HIGH);
+     
+     SonarSensor(LtrigPin1, LechoPin1);
+     LeftSensor = distance;
+     SonarSensor(RtrigPin2, RechoPin2);
+     RightSensor = distance;
+
+     Serial.print(LeftSensor);
+     Serial.print(" - ");
+     Serial.println(RightSensor);
+     Serial.print(" - ");
+
    }
    else 
   {
-    Serial.println("  |  Status: Bike wont start since rider is DRUNK");
+     Serial.println("  |  Status: Bike wont start since rider is DRUNK");
   }
-  // Read the alcohol sensor value
 
   }
 }
+
 void SonarSensor(int trigPin,int echoPin)
 {
 digitalWrite(trigPin, LOW);
