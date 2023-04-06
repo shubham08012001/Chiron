@@ -62,5 +62,6 @@ void loop() {
 
     // Close connection
     client.stop();
+    
   }
 }
