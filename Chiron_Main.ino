@@ -1,3 +1,6 @@
+// Define pins for the alcohol sensor and switches
+/* Replace these values with your own readings */
+
 #define Relay 5
 #define Sober 150   // Define max value that we consider sober
 #define Drunk 300   // Define min value that we consider drunk
@@ -58,6 +61,7 @@ void loop() {
     
     {
      Serial.println("Status: Bike wont start since rider is DRUNK");
+     digitalWrite(Relay,LOW);
      delay (500);
     }
 
