@@ -1,65 +1,66 @@
 #include <WiFi.h>
 
-// Replace with the SSID and password of the host ESP32's access point
-const char* ssid = "Chiron";
-const char* password = "rsss@2023";
+const char* ssid = "Chiron";          // change to your WiFi SSID
+const char* password = "rsss@2023";  // change to your WiFi password
+const char* serverIP = "192.168.4.1";    // change to IP address of the first board
 
-// Replace with the IP address of the host ESP32
-IPAddress hostIP(192, 168, 4, 1);
-
-// Replace with the port number used by the host ESP32
-const int hostPort = 0;
-
-// GPIO pin for relay
-const int relayPin = 15;
-
-// Create a WiFiClient object
 WiFiClient client;
 
+int relayPin = 14;
+
 void setup() {
-  // Start serial communication
-  Serial.begin(115200);
-  delay(1000);
-
-  // Set GPIO pin mode
   pinMode(relayPin, OUTPUT);
-
-  // Connect to access point
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.begin(115200);
+  Serial.println(" ");
+  Serial.print("Connecting to WiFi");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.print(".");
   }
-  Serial.println("");
-  Serial.println("WiFi Connected");
-
-  // Print client IP address
-  Serial.print("Client IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(" ");
+  Serial.println("Connected to WiFi");
+  Serial.println(" ");
 }
 
 void loop() {
-  // Connect to host
   if (!client.connected()) {
-    Serial.println("Connecting to host");
-    if (client.connect(hostIP, hostPort)) {
-      Serial.println("Connected to host");
+    Serial.println("Connecting to Server...");
+    if (client.connect(serverIP, 80)) {
+      Serial.println("Connected to Server");
+      Serial.println(" ");
+    } 
+    else {
+      Serial.println("Connection Failed");
+      Serial.println(" ");
+      delay(5000);
+      return;
     }
   }
 
-  // Read input value from host
-  if (client.available()) {
-    int inputValue = client.parseInt();
-    Serial.print("Input value: ");
-    Serial.println(inputValue);
-
-    // Turn on/off relay based on input value
-    digitalWrite(relayPin, inputValue);
-  }
-
-  // Wait for some time
-  delay(100);
+while (client.connected()) {
+        if (client.available()) {
+          Serial.println("Server is Active");
+          String data = client.readStringUntil('\r');
+          Serial.println(data);
+          if (data == "ON") {
+            digitalWrite(relayPin, HIGH);  
+          } 
+          else if (data == "OFF") {
+            digitalWrite(relayPin, LOW);
+          }
+        }
+        // execute some code every 100 milliseconds
+        unsigned long currentMillis = millis();
+        static unsigned long previousMillis = 0;
+        if (currentMillis - previousMillis >= 100) {
+          previousMillis = currentMillis;
+          // execute some code here
+        }
+      }
+      Serial.println("Disconnected from server");
+      client.stop();
   
+  // delay before trying to connect again
+  delay (1000);
 }
