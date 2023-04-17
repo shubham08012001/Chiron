@@ -1,67 +1,48 @@
 #include <WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiAP.h>
 
-// Replace with your network credentials
-const char* ssid = "Chiron";
-const char* password = "rsss@2023";
+const char* ssid = "Chiron";          // WiFi SSID
+const char* password = "rsss@2023";     // WiFi password
 
-// Replace with the IP address and port of the client ESP32
-IPAddress clientIP(192, 168, 4, 2);
-const int clientPort = 80;
-
-// GPIO pin for input
-const int inputPin = 14;
-
-// Create a server object
 WiFiServer server(80);
 
+int gpioPin = 14;     // GPIO pin to read input from
+
 void setup() {
-  // Start serial communication
+  pinMode(gpioPin, INPUT);
+  
   Serial.begin(115200);
-  delay(1000);
-
-  // Set GPIO pin mode
-  pinMode(inputPin, INPUT);
-
-  // Start AP
-  WiFi.softAP(ssid, password);
-
-  // Get AP IP address and Port
-  IPAddress apIP = WiFi.softAPIP();
-  const int apPort = WiFi.softAPgetStationNum();
-  
-// Print SSID, AP IP address & Port
-  Serial.println("");
-  Serial.print("Wi-Fi access point created with SSID: ");
+  WiFi.softAP(ssid, password);           // create an access point
+  IPAddress apIP = WiFi.softAPIP();      // get IP address of the access point
+  Serial.println(" ");
+  Serial.println("========================================");
+  Serial.println("Access Point Started");
+  Serial.print("SSID: ");
   Serial.println(ssid);
-  Serial.print("Access Point IP address: ");
+  Serial.print("Password: ");
+  Serial.println(password);
+  Serial.print("Access Point IP Address: ");
   Serial.println(apIP);
-  Serial.print("Access Point Port: ");
-  Serial.println(apPort);
+  Serial.println("========================================");
+  Serial.println(" ");
   
-
-  // Start server
   server.begin();
 }
 
 void loop() {
-  // Wait for a client to connect
   WiFiClient client = server.available();
   if (client) {
     Serial.println("Client Connected");
-    
-    // Read input value
-    int inputValue = digitalRead(inputPin);
-
-    // Send input value to client
-    client.println(inputValue);
-
-    // Wait for client to read input value
-    delay(10);
-
-    // Close connection
+    while (client.connected()) {
+      if (digitalRead(gpioPin) == HIGH) {
+        client.write("ON" "/r");
+        Serial.println("Sent ON to client");
+      } else {
+        client.write("OFF""/r");
+        Serial.println("Sent OFF to client");
+      }
+      delay(500);
+    }
+    Serial.println("Client disconnected");
     client.stop();
-    
   }
 }
