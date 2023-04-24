@@ -69,6 +69,7 @@ void loop() {
   
   {
     Serial.println("Sensors not Detected");
+    digitalWrite(Relay,LOW);
     delay(500);
   }
   
