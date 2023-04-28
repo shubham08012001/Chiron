@@ -1,56 +1,30 @@
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
 #include <Wire.h>
+#include <MPU6050.h>
 
-Adafruit_MPU6050 mpu;
+MPU6050 mpu;
 
-void setup(void) {
-	Serial.begin(115200);
-
-	// Try to initialize!
-	if (!mpu.begin()) {
-		Serial.println("Failed to find MPU6050 chip");
-		while (1) {
-		  delay(10);
-		}
-	}
-
-	// set accelerometer range to +-8G
-	mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-
-	// set gyro range to +- 500 deg/s
-	mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-
-	// set filter bandwidth to 21 Hz
-	mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-
-	delay(100);
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+#define accident 2
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  mpu.initialize();
 }
 
 void loop() {
-	/* Get new sensor events with the readings */
-	sensors_event_t a, g, temp;
-	mpu.getEvent(&a, &g, &temp);
+  mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-	/* Print out the values */
-  Serial.print("accx=");
-	Serial.print(a.acceleration.x);
-	Serial.print(",");
-  Serial.print("accy=");  
-	Serial.print(a.acceleration.y);
-	Serial.print(",");
-  Serial.print("accz=");
-	Serial.print(a.acceleration.z);
-	Serial.print(", ");
-  Serial.print("gyrox=");
-	Serial.print(g.gyro.x);
-	Serial.print(",");
-  Serial.print("gyroy=");
-	Serial.print(g.gyro.y);
-	Serial.print(",");
-  Serial.print("gyroz=");
-	Serial.print(g.gyro.z);
-	Serial.println("");
+  // Calculate the total acceleration vector
+  float totalAccel = sqrt(ax*ax + ay*ay + az*az);
 
-	delay(1000);
+  // Check if the total acceleration is below a threshold
+  if (totalAccel < 5) {
+    Serial.println("Fall detected!");
+     Serial.println(totalAccel);
+digitalWrite(accident,HIGH);
+  }
+
+  delay(10);
 }
+
