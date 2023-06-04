@@ -4,7 +4,7 @@
 #define Relay 5
 #define Sober 150   // Define max value that we consider sober
 #define Drunk 300   // Define min value that we consider drunk
-#define MQ3pin 7
+#define MQ3Pin 7
 float sensorValue;  //variable to store sensor value
 const int switchPin = 3;
 #define LtrigPin1 11 // Define pins for the ultrasonic sensors
@@ -12,6 +12,7 @@ const int switchPin = 3;
 #define RtrigPin2 9
 #define RechoPin2 10
 long duration, distance, RightSensor,LeftSensor; // Define variables for the ultrasonic sensors
+
 
 
 void setup()
@@ -23,6 +24,11 @@ pinMode(LechoPin1, INPUT);
 pinMode(RtrigPin2, OUTPUT);
 pinMode(RechoPin2, INPUT);
 pinMode(MQ3pin, INPUT);
+pinMode(A1, OUTPUT);
+pinMode(A2, OUTPUT);
+pinMode(A4, OUTPUT);
+pinMode(A5, OUTPUT);
+
 
 pinMode(switchPin, INPUT);
 
@@ -33,7 +39,7 @@ Serial.println("Chiron is now Active");
 
 void loop() {
   
-  sensorValue = digitalRead(MQ3pin); 
+  sensorValue = digitalRead(MQ3Pin); 
   
   if (digitalRead(switchPin) == HIGH && sensorValue == HIGH) // Check if switches are pressed and alcohol is not detected
    {
@@ -53,6 +59,26 @@ void loop() {
      Serial.print(" | ");
      Serial.print("Right Distance - ");
      Serial.println(RightSensor);
+
+     if(LeftSensor >= 50){
+      digitalWrite(A1, HIGH);
+      digitalWrite(A2, LOW);
+     }
+     
+     else{
+      digitalWrite(A2, HIGH);
+      digitalWrite(A1, LOW);
+     }
+
+     if(RightSensor >= 50){
+      digitalWrite(A4, HIGH);
+      digitalWrite(A5, LOW);
+     }
+     
+     else{
+      digitalWrite(A5, HIGH);
+      digitalWrite(A4, LOW);
+     }
 
      delay (500);
     }
