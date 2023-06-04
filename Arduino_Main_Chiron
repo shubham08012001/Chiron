@@ -23,7 +23,7 @@ pinMode(LtrigPin1, OUTPUT);
 pinMode(LechoPin1, INPUT);
 pinMode(RtrigPin2, OUTPUT);
 pinMode(RechoPin2, INPUT);
-pinMode(MQ3pin, INPUT);
+pinMode(MQ3Pin, INPUT);
 pinMode(A1, OUTPUT);
 pinMode(A2, OUTPUT);
 pinMode(A4, OUTPUT);
