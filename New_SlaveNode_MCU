@@ -13,14 +13,14 @@ void setup() {
   pinMode(RelayPin, OUTPUT);
   Serial.begin(115200);
   Serial.println(" ");
-  Serial.print("Connecting to WiFi");
+  Serial.print("Connecting to Chiron");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.print(".");
   }
   Serial.println(" ");
-  Serial.println("Connected to WiFi");
+  Serial.println("Connected to Chiron");
   Serial.println(" ");
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -28,18 +28,17 @@ void setup() {
     Serial.print(".");
   }
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
-
+  Serial.println("");
+  
 }
 
 void loop() {
   if (!client.connected()) {
-    Serial.println("Connecting to Server...");
+    Serial.println("Accessing Server...");
     if (client.connect(serverIP, 80)) {
-      Serial.println("Connected to Server");
+      Serial.println("Server Accessed");
       Serial.println(" ");
     }
   }
@@ -53,19 +52,20 @@ void loop() {
 
       digitalWrite(D2, inputValue);
 
-      Serial.print("Received digital input: ");
-      Serial.println(inputValue);
+      Serial.print("Value Received: ");
+      Serial.print(inputValue);
+      Serial.print(" , ");
 
       if (inputValue == 1) {
         digitalWrite(RelayPin, HIGH);
-        Serial.print("Relay turned ON");
+        Serial.println("Relay Turned ON");
       } else {
         digitalWrite(RelayPin, LOW);
-        Serial.print("Relay turned OFF");
+        Serial.println("Relay Turned OFF");
       }
     }
   }
 
-  Serial.println("Connection lost");
+  Serial.println("Chiron Disconnected...");
   delay(1000);
 }
