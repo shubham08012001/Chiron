@@ -1,0 +1,84 @@
+// Pin connections
+const int xPin = A1;        // X-axis analog input pin
+const int yPin = A2;        // Y-axis analog input pin
+const int zPin = A3;        // Z-axis analog input pin
+const int buttonPin = 11;    // Button input pin
+const int buzzerPin = 12;    // Buzzer output pin
+const int outputPin = 8;    // Designated output pin
+
+// Threshold for acceleration change
+const int threshold = 100; // Adjust this value as per your requirements
+
+// Variables
+int prevAccelX, prevAccelY, prevAccelZ;
+bool buzzerActive = false;
+bool buttonPressed = false;
+unsigned long buttonStartTime = 0;
+
+void setup() {
+  // Initialize Serial Monitor
+  Serial.begin(9600);
+
+  // Set button pin as input with internal pull-up resistor
+  pinMode(buttonPin, INPUT_PULLUP);
+
+  // Set buzzer and output pins as output
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(outputPin, OUTPUT);
+
+  // Initialize previous acceleration values
+  prevAccelX = analogRead(xPin);
+  prevAccelY = analogRead(yPin);
+  prevAccelZ = analogRead(zPin);
+
+  Serial.println("===== System Active =====");
+  Serial.println(" ");
+}
+
+void loop() {
+  // Read acceleration values
+  int accelX = analogRead(xPin);
+  int accelY = analogRead(yPin);
+  int accelZ = analogRead(zPin);
+
+  // Calculate acceleration change
+  int accelChange = abs(accelX - prevAccelX) + abs(accelY - prevAccelY) + abs(accelZ - prevAccelZ);
+
+
+  // Check if acceleration change exceeds the threshold
+  if (accelChange > threshold) {
+    // Start the buzzer
+    digitalWrite(buzzerPin, HIGH);
+    buzzerActive = true;
+    buttonStartTime = millis();
+    Serial.println("Impact Detected!");
+    Serial.print("Imapact Magnitude: ");
+    Serial.println(accelChange);
+  }
+
+  // Check if the buzzer is active
+  if (buzzerActive) {
+    // Check if the button is pressed
+    buttonPressed = digitalRead(buttonPin) == LOW;
+
+    // Stop the buzzer if the button is pressed
+    if (buttonPressed) {
+      Serial.println(" ");
+      Serial.print("Button pressed, signal not sent...");
+      digitalWrite(buzzerPin, LOW);
+      buzzerActive = false;
+    }
+
+    // Check if the button is not pressed within 1 minute (60000 milliseconds)
+    if (millis() - buttonStartTime > 60000) {
+      Serial.println(" ");
+      Serial.print("Button not pressed, signal sent...");
+      digitalWrite(outputPin, HIGH);
+    }
+  }
+
+  // Update previous acceleration values
+  prevAccelX = accelX;
+  prevAccelY = accelY;
+  prevAccelZ = accelZ;
+}
