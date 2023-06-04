@@ -5,7 +5,7 @@ const char* password = "rsss@2023";     // WiFi password
 
 WiFiServer server(80);
 
-int D2= 4;     // GPIO pin to read input from
+int D2 = 4;     // GPIO pin to read input from
 
 void setup() {
   pinMode(D2, INPUT);
@@ -26,22 +26,37 @@ void setup() {
   Serial.println(" ");
   
   server.begin();
-
-
-  
 }
 
 void loop() {
   WiFiClient client = server.available();
-if (client) {
-    Serial.println("Client Connected");
+  if (client) {
+    Serial.println("Bike Connected Sucessfully...");
 
-  while (client.connected()) 
-  {
-    int digitalInput = digitalRead(D2);
-    client.print(digitalInput);
-    Serial.print(digitalInput);
+    while (client.connected()) {
+      int digitalInput = digitalRead(D2);
+      client.print(digitalInput);
+      Serial.print("Value Sent: ");
+      Serial.println(digitalInput);
 
-    delay(100);
+      delay(1000);
+
+      // Check if the client has disconnected
+      if (!client.connected()) {
+        Serial.println("Bike Disconnected...");
+        delay(1000);
+        break;
+        
+      }
+    }
   }
-  }}
+  
+  // Handle disconnection or errors
+  if (!client.connected()) {
+    client.stop();  // Disconnect the client
+    Serial.println("Bike Disconnected...");
+    delay(1000);
+
+    // Handle any additional error handling or reconnection logic here
+  }
+}
