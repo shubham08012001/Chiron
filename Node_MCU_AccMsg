@@ -92,8 +92,8 @@ void getGps() {
   }
 
 // Use hardcoded latitude and longitude values
-  latitude = "12.3456"; // Replace with your desired latitude
-  longitude = "78.9012"; // Replace with your desired longitude
+  latitude = "15.326666"; // Replace with your desired latitude
+  longitude = "73.933436"; // Replace with your desired longitude
   
   Serial.print("Latitude= ");
   Serial.println(latitude);
