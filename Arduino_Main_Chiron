@@ -70,7 +70,7 @@ void loop() {
       digitalWrite(A1, LOW);
      }
 
-     if(RightSensor >= 50){
+     if(RightSensor <= 50){
       digitalWrite(A4, HIGH);
       digitalWrite(A5, LOW);
      }
