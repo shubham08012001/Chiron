@@ -1,31 +1,34 @@
-#include <WiFi.h>    
+#include <WiFi.h>
 #include <HTTPClient.h>
 #include <UrlEncode.h>
+#include <TinyGPS++.h>
 
-const char* ssid = "The Hotspot";
-const char* password = "S21FEROX";
+HardwareSerial neogps(1); // Use hardware serial port 1 on ESP32
+TinyGPSPlus gps;
+String latitude, longitude;
+
+const char* ssid = "Galaxy M30s47FF";
+const char* password = "pzry4510";
 
 // +international_country_code + phone number
+String phoneNumber = "+918329688423";
+String apiKey = "4315033";
 
-String phoneNumber = "+919518745617";
-String apiKey = "1272578";
-
-void sendMessage(String message){
-
+void sendMessage(String message) {
   // Data to send with HTTP POST
-  String url = "https://api.callmebot.com/whatsapp.php?phone=" + phoneNumber + "&apikey=" + apiKey + "&text=" + urlEncode(message);    
+  String url = "https://api.callmebot.com/whatsapp.php?phone=" + phoneNumber + "&apikey=" + apiKey + "&text=" + urlEncode(message);
   HTTPClient http;
   http.begin(url);
 
   // Specify content-type header
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  
+
   // Send HTTP POST request
   int httpResponseCode = http.POST(url);
-  if (httpResponseCode == 200){
+  if (httpResponseCode == 200) {
     Serial.print("Message sent successfully");
   }
-  else{
+  else {
     Serial.println("Error sending the message");
     Serial.print("HTTP response code: ");
     Serial.println(httpResponseCode);
@@ -37,10 +40,12 @@ void sendMessage(String message){
 
 void setup() {
   Serial.begin(115200);
+  neogps.begin(9600, SERIAL_8N1, 12, 13); // Set baud rate and RX/TX pins for hardware serial
   pinMode(14, INPUT);
+
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
@@ -50,8 +55,48 @@ void setup() {
 }
 
 void loop() {
-  if(digitalRead(14)== HIGH){
-      // Send Message to WhatsAPP
-  sendMessage("Accident Detected");
+  if (digitalRead(14) == HIGH) {
+    // Send Message to WhatsApp
+    getGps();
+
+    String msg_data;
+    msg_data = "Accident Alert!\r";
+    msg_data += "http://maps.google.com/maps?q=loc:";
+    msg_data += latitude + "," + longitude;
+
+    sendMessage(msg_data);
   }
+}
+
+void getGps() {
+  // Can take up to 60 seconds
+  boolean newData = false;
+  for (unsigned long start = millis(); millis() - start < 2000;) {
+    while (neogps.available()) {
+      if (gps.encode(neogps.read())) {
+        newData = true;
+        break;
+      }
+    }
+  }
+
+  if (newData) { // If newData is true
+    latitude = String(gps.location.lat(), 6);
+    longitude = String(gps.location.lng(), 6);
+    newData = false;
+  }
+  else {
+    Serial.println("No GPS data is available");
+    latitude = "";
+    longitude = "";
+  }
+
+// Use hardcoded latitude and longitude values
+  latitude = "12.3456"; // Replace with your desired latitude
+  longitude = "78.9012"; // Replace with your desired longitude
+  
+  Serial.print("Latitude= ");
+  Serial.println(latitude);
+  Serial.print("Longitude= ");
+  Serial.println(longitude);
 }
